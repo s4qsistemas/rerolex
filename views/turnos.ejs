@@ -1,0 +1,127 @@
+<%- include('header') -%>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous">
+</script>
+<div class="text-center center-div mt-5">
+  <div class="container w-25 border py-5 mt-5">
+    <h3>Turnos</h3>
+    <div>
+      <button type="button" class="btn btn-primary" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" id="getTurnos">Ver</button>
+    </div><br>
+    <div>
+      <form id="turnoForm">
+        <input type="text" id="newTurno" hidden>
+        <button type="submit" class="btn btn-primary" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" id="crearButton" hidden>Registrar</button>
+      </form>
+      <button type="button" class="btn btn-primary" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" onclick="crearTurno()" id="crearTurno">Agregar</button>
+      <table align="center" id="turnoTbl">
+        <thead id="turnoThd"></thead>
+        <tbody id="turnoTbd"></tbody>
+      </table>
+    </div><br>
+    <a href="/route/dashboard">volver</a><br><br>
+    <a style="color:red;" href="/route/logout">Salir</a><br><br>
+  </div>
+</div>
+<script>
+  function crearTurno() {
+    $("#crearTurno").attr("hidden",true);
+    $("#newTurno").attr("hidden",false);
+    $("#newTurno").show().focus();
+    $("#crearButton").attr("hidden",false);
+  }
+  $(function () { 
+  const URI = '/api/turnos';
+  // GET TURNOS
+  $('#getTurnos').on('click', () => {
+    $.ajax({
+      url: URI,
+      success: function (products) {
+        let thead = $('#turnoThd');
+        thead.html('');
+        thead.append(`
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Acción</th>
+          </tr>
+        `)
+        let tbody = $('#turnoTbd');
+        tbody.html('');
+        products.forEach(product => {
+          tbody.append(`
+            <tr>
+              <td class="id">${product.id}</td>
+              <td>
+                <input type="text" class="name" value="${product.name}"/>
+              </td>
+              <td>
+                <button style="background-color:orange;color:white;font-size:smaller;" class="update-button">Edit</button>
+                <button style="background-color:red;color:white;font-size:smaller;" class="delete-button">Del</button>
+              </td>
+            </tr>
+          `)
+        })
+      }
+    });
+  });
+  // POST TURNOS
+  $('#turnoForm').on('submit', (e) => {
+    e.preventDefault();
+    let newProduct = $('#newTurno');
+    $.ajax({
+      url: URI,
+      method: 'POST',
+      data: {
+        name: newProduct.val()
+      },
+      success: function(response) {
+        let name = newProduct.val();
+        newProduct.val('');
+        $('#getTurnos').click();
+        alert('Turno '+ name +' Registrado.');
+        return false;
+      },
+      error: function (err) {
+        console.log(err);
+      }
+    });
+  });
+  $('#turnoTbl').on('click', '.update-button', function() {
+    let row = $(this).closest('tr');
+    let id = row.find('.id').text();
+    let name = row.find('.name').val();
+    $.ajax({
+      url: `${URI}/${id}`,
+      method: 'PUT',
+      data: {
+        name: name 
+      },
+      success: function(response) {
+        console.log(response);
+        alert('Turno ' + name + ' Modificado.')
+        $('#getTurnos').click();
+      }
+    });
+  });
+  $('#turnoTbl').on('click', '.delete-button', function() {
+    let row = $(this).closest('tr');
+    let id = row.find('.id').text();
+    let name = row.find('.name').val();
+    if (confirm('Turno ' + name + ' se eliminará') == true) {
+      $.ajax({
+        url: `${URI}/${id}`,
+        method: 'DELETE',
+        success: function (response) {
+          $('#getTurnos').click();
+        }
+      });
+      return false;
+    } else {
+    }
+  });
+});
+</script>
+<%- include('footer') -%>

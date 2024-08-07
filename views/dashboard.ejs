@@ -1,0 +1,21 @@
+<%- include('header') -%>
+<div class="text-center center-div mt-5">
+    
+    
+    <div class="container w-25 border py-5 mt-5">
+        <div class="position-relative">
+            <div class="position-absolute top-0 start-0"><a href="/route/obras">Obras</a></div>
+            <div class="position-absolute top-0 end-0"><a href="/route/secciones">Secciones</a></div><br><br>
+            <h4>Bienvenido</h4>
+            <h3 style="color: purple;" ><b><%= locals.user ? user : "User" %></b></h3>
+            <h4>Rerolex</h4>
+            <a style="color:red;" href="/route/logout">Salir</a><br><br><br>
+            <div class="position-absolute bottom-0 start-0"><a href="/route/turnos">Turnos</a></div>
+            <div class="position-absolute bottom-0 end-0"><a href="/route/asistencia">Asistencia</a></div>
+            <div class="position-absolute bottom-0 start-50 translate-middle-x"><a href="/route/personal">Personal</a></div>
+        </div>
+    </div>
+    
+    
+</div>
+<%- include('footer') -%>

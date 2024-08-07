@@ -1,0 +1,300 @@
+<%- include('header') -%>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous">
+</script>
+<div class="text-center">
+  <div class="container w-25 border py-5 mt-5">
+    <h3>Personal</h3>
+    <button type="button" class="btn btn-primary" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" id="getPersonal">Ver</button><br>
+    <form id="personalForm" hidden><br>
+      <div id="divForm">
+        <input type="text" id="newId" class="form-control" placeholder="id" hidden>
+        <input type="text" id="newCedula" class="form-control" placeholder="Cédula">
+        <input type="text" id="newNombre" class="form-control" placeholder="Nombre">
+        <input type="text" id="newEmail" class="form-control" placeholder="Email">
+        <input type="text" id="newDireccion" class="form-control" placeholder="Dirección">
+        <input type="text" id="newComuna" class="form-control" placeholder="Comuna">
+        <input type="text" id="newTelefono" class="form-control" placeholder="Teléfono">
+        <select id="newObra" class="form-select" aria-label="Default select example">
+          <option selected>Obra</option>
+        </select>
+        <script>
+          function set_obras() {
+            var filePath = '/api/obras';
+            $.getJSON(filePath, function( data ) {
+              $.each( data, function( key, val ) {
+                $('#newObra').append('<option value="'+ val['name'] +'">'+ val['name'] +'</option>');
+              });
+            });
+          }
+          set_obras();
+        </script>
+        <select id="newSeccion" class="form-select" aria-label="Default select example">
+          <option selected>Sección</option>
+        </select>
+        <script>
+          function set_secciones() {
+            var filePath = '/api/secciones';
+            $.getJSON(filePath, function( data ) {
+              $.each( data, function( key, val ) {
+                $('#newSeccion').append('<option value="'+ val['name'] +'">'+ val['name'] +'</option>');
+              });
+            });
+          }
+          set_secciones();
+        </script>
+        <select id="newTurno" class="form-select" aria-label="Default select example">
+          <option selected>Turnos</option>
+        </select>
+        <script>
+          function set_turnos() {
+            var filePath = '/api/turnos';
+            $.getJSON(filePath, function( data ) {
+              $.each( data, function( key, val ) {
+                $('#newTurno').append('<option value="'+ val['name'] +'">'+ val['name'] +'</option>');
+              });
+            });
+          }
+          set_turnos();
+        </script>
+      </div>
+      <button type="submit" class="btn btn-primary" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" id="registrarButton">Guardar</button hidden><br>
+    </form><br>
+    <button type="button" class="btn btn-primary" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" id="crearButton" onclick="crear()" >Agregar</button><br>
+    <button type="button" class="btn btn-primary" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" id="guardarButton" hidden>Guardar</button><br>
+    <br><a href="/route/dashboard">volver</a><br><br>
+    <a style="color:red;" href="/route/logout">Salir</a>
+    <script>
+      function crear() {
+        $('#newCedula').val('');
+        $('#newNombre').val('');
+        $('#newEmail').val('');
+        $('#newDireccion').val('');
+        $('#newComuna').val('');
+        $('#newTelefono').val('');
+        $('#newObra').val('Obra');
+        $('#newSeccion').val('Sección');
+        $('#newTurno').val('Turnos');
+        $("#personalForm").attr("hidden",false);
+        $("#crearButton").attr("hidden",true);
+        $("#divProcess").attr("hidden",true);
+        $("#records_table").attr("hidden",true);
+        $("#guardarButton").attr("hidden",true);
+        $("#registrarButton").attr("hidden",false);
+      }
+        // POST PERSONAL
+        const URI = '/api/personal';
+        $('#personalForm').on('submit', (e) => {
+          e.preventDefault();
+          let newCedula = $('#newCedula');
+          let newNombre = $('#newNombre');
+          let newEmail = $('#newEmail');
+          let newDireccion = $('#newDireccion');
+          let newComuna = $('#newComuna');
+          let newTelefono = $('#newTelefono');
+          let newObra = $('#newObra');
+          let newSeccion = $('#newSeccion');
+          let newTurno = $('#newTurno');
+          $.ajax({
+            url: URI,
+            method: 'POST',
+            data: {
+              cedula: newCedula.val(),
+              nombre: newNombre.val(),
+              email: newEmail.val(),
+              direccion: newDireccion.val(),
+              comuna: newComuna.val(),
+              telefono: newTelefono.val(),
+              obra: newObra.val(),
+              seccion: newSeccion.val(),
+              turno: newTurno.val()
+            },
+            success: function(response) {
+              let cedula = newCedula.val();
+              newCedula.val('');
+              newNombre.val('');
+              newEmail.val('');
+              newDireccion.val('');
+              newComuna.val('');
+              newTelefono.val('');
+              $('#getPersonal').click();
+              alert('RUT '+ cedula +' Registrado.');
+              return false;
+            },
+            error: function (err) {
+              console.log(err);
+            }
+          });
+        });
+    </script>
+  </div>
+</div>
+<div class="container">
+  <div id="divProcess" hidden>
+    <input id="searchData" type="text" placeholder="filtrar">
+    <script>
+      $(document).ready(function(){
+        $("#searchData").on("keyup", function() {
+          var value = $(this).val().toLowerCase();
+          $("#tableTbd tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+          });
+        });
+      });
+    </script> 
+    <button type="button" class="btn btn-success" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" onclick="exportTableToExcel('records_table', 'Personal')">Excel</button>
+    <script>
+      function exportTableToExcel(tableID, filename = ''){
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+        // Specify file name
+        filename = filename?filename+'.xls':'excel_data.xls';   
+        // Create download link element
+        downloadLink = document.createElement("a");
+        document.body.appendChild(downloadLink);
+        if(navigator.msSaveOrOpenBlob){
+          var blob = new Blob(['\ufeff', tableHTML], {
+            type: dataType
+          });
+        navigator.msSaveOrOpenBlob( blob, filename);
+        }else{
+          // Create a link to the file
+          downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+          // Setting the file name
+          downloadLink.download = filename;
+          // triggering the function
+          downloadLink.click();
+        }
+      }
+    </script> 
+  </div>
+  <div class="table">
+    <table class="table table-striped" id="records_table" hidden>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cédula</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Dirección</th>
+          <th>Comuna</th>
+          <th>Teléfono</th>
+          <th>Obra</th>
+          <th>Sección</th>
+          <th>Turno</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tableTbd"></tbody>
+    </table>
+  </div>
+  <script>
+    // GET PERSONAL
+    $(function () {
+      const URI = '/api/personal';
+      $('#getPersonal').on('click', () => {
+        $('#tableTbd').html('');
+        $.ajax({
+          url: URI,
+          success: function (products) {
+            var trHTML = '';
+            $.each(products, function (i, item) {
+              trHTML += '<tr><td class="id">' + item.id + '</td><td class="cedula">' + item.cedula + '</td><td class="nombre">' + item.nombre + '</td><td class="email">' + item.email + '</td><td class="direccion">' + item.direccion + '</td><td class="comuna">' + item.comuna + '</td><td class="telefono">' + item.telefono + '</td><td class="obra">' + item.obra + '</td><td class="seccion">' + item.seccion + '</td><td class="turno">' + item.turno + '</td><td><button style="background-color:orange;color:white;font-size:smaller;"class="update-button">Edit</button></td><td><button style="background-color:red;color:white;font-size:smaller;"class="delete-button">Del</button></td></tr>';
+            });
+            $("#personalForm").attr("hidden",true);
+            $("#crearButton").attr("hidden",false);
+            $("#guardarButton").attr("hidden",true);
+            $("#divProcess").attr("hidden",false);
+            $("#searchData").val('');
+            $("#searchData").show().focus();
+            $("#records_table").attr("hidden",false);
+            $('#tableTbd').append(trHTML);
+          }
+        });
+      });
+    });
+    $('#records_table').on('click', '.delete-button', function() {
+      let row = $(this).closest('tr');
+      let id = row.find('.id').text();
+      let cedula = row.find('.cedula').text();
+      if (confirm('RUT ' + cedula + ' se eliminará') == true) {
+        $.ajax({
+          url: `${URI}/${id}`,
+          method: 'DELETE',
+          success: function (response) {
+            $('#getPersonal').click();
+          }
+        });
+      } else {
+        return false;
+      }
+    });
+    $('#records_table').on('click', '.update-button', function() {
+      let row = $(this).closest('tr');
+      let id = row.find('.id').text();
+      let cedula = row.find('.cedula').text();
+      let nombre = row.find('.nombre').text();
+      let email = row.find('.email').text();
+      let direccion = row.find('.direccion').text();
+      let comuna = row.find('.comuna').text();
+      let telefono = row.find('.telefono').text();
+      let obra = row.find('.obra').text();
+      let seccion = row.find('.seccion').text();
+      let turno = row.find('.turno').text();
+      $('#newId').val(id);
+      $('#newCedula').val(cedula);
+      $('#newNombre').val(nombre);
+      $('#newEmail').val(email);
+      $('#newDireccion').val(direccion);
+      $('#newComuna').val(comuna);
+      $('#newTelefono').val(telefono);
+      $('#newObra').val(obra);
+      $('#newSeccion').val(seccion);
+      $('#newTurno').val(turno);
+      $("#crearButton").attr("hidden",true);
+      $("#registrarButton").attr("hidden",true);
+      $("#guardarButton").attr("hidden",false);
+      $("#personalForm").attr("hidden",false);
+      $("#divProcess").attr("hidden",true);
+      $("#records_table").attr("hidden",true);
+    });
+    $('#guardarButton').on('click', () => {
+      let id = $('#newId').val();
+      let rut = $('#newCedula').val();
+      let newCedula = $('#newCedula');
+      let newNombre = $('#newNombre');
+      let newEmail = $('#newEmail');
+      let newDireccion = $('#newDireccion')
+      let newComuna = $('#newComuna');
+      let newTelefono = $('#newTelefono');
+      let newObra = $('#newObra');
+      let newSeccion = $('#newSeccion');
+      let newTurno = $('#newTurno');
+      $.ajax({
+        url: `${URI}/${id}`,
+        method: 'PUT',
+        data: {
+          cedula: newCedula.val(),
+          nombre: newNombre.val(),
+          email: newEmail.val(),
+          direccion: newDireccion.val(),
+          comuna: newComuna.val(),
+          telefono: newTelefono.val(),
+          obra: newObra.val(),
+          seccion: newSeccion.val(),
+          turno: newTurno.val()
+        },
+        success: function(response) {
+          console.log(response);
+          alert('RUT ' + rut + ' Editado.')
+          $('#getPersonal').click();
+        }
+      });
+    });
+  </script>
+</div>
+<%- include('footer') -%>

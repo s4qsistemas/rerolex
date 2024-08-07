@@ -1,0 +1,37 @@
+
+<%- include('header') -%>
+
+
+<div class="text-center center-div" id="login">
+    <div class="container w-25 border py-5">
+        <div class="title pb-5">
+            <h2 class="font-weight-bold">ReroleX</h2>
+            <span>Sistema de Control Automatizado</span>
+            <% if(locals.logout){ %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= logout %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+            <% if(locals.noUser){ %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= noUser %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+        </div>
+        <form action="/route/login" method="POST" class="pt-3">
+            <div class="form-group">
+                <small class="form-text text-muted">ingresar datos</small>
+                <input type="email" class="form-control" placeholder="usuario" name="email">
+            </div><br>
+            <div class="form-group">
+                <input type="password" class="form-control" name="password" placeholder="contraseña">
+            </div><br>
+            <button type="submit" class="btn btn-success rounded-pill">Entrar</button>
+        </form>
+    </div>
+</div>
+
+
+<%- include('footer') -%>

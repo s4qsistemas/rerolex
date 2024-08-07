@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1",
+    "name": "Administracion"
+  },
+  {
+    "id": "2",
+    "name": "Operaciones"
+  },
+  {
+    "id": "3",
+    "name": "Produccion"
+  },
+  {
+    "id": "4",
+    "name": "Mantenimiento"
+  }
+]

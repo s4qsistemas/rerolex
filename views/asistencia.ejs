@@ -1,0 +1,169 @@
+<%- include('header') -%>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous">
+</script>
+
+<div class="container w-25 border py-5 mt-5">
+  <h3>Asistencia</h3>
+  <div>
+
+    <select id="obraSlt" class="form-select" aria-label="Default select example">
+      <option selected>Obra</option>
+    </select>
+    <script>
+      function set_obras() {
+        var filePath = '/api/obras';
+        $.getJSON(filePath, function( data ) {
+          $.each( data, function( key, val ) {
+            $('#obraSlt').append('<option value="'+ val['id'] +'">'+ val['name'] +'</option>');
+          });
+        });
+      }
+      set_obras();
+    </script>
+
+    <select id="seccSlt" class="form-select" aria-label="Default select example">
+      <option selected>Seccion</option>
+    </select>
+    <script>
+      function set_secciones() {
+        var filePath = '/api/secciones';
+        $.getJSON(filePath, function( data ) {
+          $.each( data, function( key, val ) {
+            $('#seccSlt').append('<option value="'+ val['id'] +'">'+ val['name'] +'</option>');
+          });
+        });
+      }
+      set_secciones();
+    </script>
+    
+    <select id="mesSlt" class="form-select" aria-label="Default select example">
+      <option selected>Mes</option>
+      <option value="1">Enero</option>
+      <option value="2">Febrero</option>
+      <option value="3">Marzo</option>
+      <option value="4">Abril</option>
+      <option value="5">Mayo</option>
+      <option value="6">Junio</option>
+      <option value="7">Julio</option>
+      <option value="8">Agosto</option>
+      <option value="9">Septiembre</option>
+      <option value="10">Octubre</option>
+      <option value="11">Noviembre</option>
+      <option value="12">Diciembre</option>
+    </select><pre></pre>
+    <div align="right">
+      <button type="button" class="btn btn-primary" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" id="getAsis">Buscar</button>
+    </div>
+  </div>
+
+  <div class="text-center">
+    <a href="/route/dashboard">volver</a><br><br>
+    <a style="color:red;" href="/route/logout">Salir</a>
+  </div>
+  
+</div>
+
+<div class="container">
+  <div id="divProcess" hidden>
+    <input id="searchTbl" type="text" placeholder="filtrar">
+    <script>
+      $(document).ready(function(){
+        $("#searchTbl").on("keyup", function() {
+          var value = $(this).val().toLowerCase();
+          $("#tableTbd tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+          });
+        });
+      });
+    </script>
+    <button type="button" class="btn btn-success" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;" onclick="exportTableToExcel('records_table', 'Asistencia')">Excel</button>
+    <script>
+      function exportTableToExcel(tableID, filename = ''){
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+        // Specify file name
+        filename = filename?filename+'.xls':'excel_data.xls';   
+        // Create download link element
+        downloadLink = document.createElement("a");
+        document.body.appendChild(downloadLink);
+        if(navigator.msSaveOrOpenBlob){
+          var blob = new Blob(['\ufeff', tableHTML], {
+            type: dataType
+          });
+        navigator.msSaveOrOpenBlob( blob, filename);
+        }else{
+          // Create a link to the file
+          downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+          // Setting the file name
+          downloadLink.download = filename;
+          //triggering the function
+          downloadLink.click();
+        }
+      }
+    </script>
+  </div>
+  <div class="table">
+    <table class="table table-striped" id="records_table" hidden>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Cédula</th>
+          <th>Nombre</th>
+          <th>Turno</th>
+          <th>Entrada</th>
+          <th>Salida</th>
+          <th>Colación</th>
+          <th>Horas</th>
+        </tr>
+      </thead>
+      <tbody id="tableTbd"></tbody>
+        <tr id="trTable"><td><h6><b>No se regista información...!</b></h6></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  $(function () {
+    const URI = '/api/asistencia';
+    $('#getAsis').on('click', () => {
+      $('#tableTbd').html('');
+      $.ajax({
+        url: URI,
+        success: function (products) {
+          var obraSlt = $("#obraSlt").val();
+          var seccSlt = $("#seccSlt").val();
+          var mesSlt = $("#mesSlt").val();
+          console.log(obraSlt,seccSlt,mesSlt)
+          if (obraSlt != "Obra" &&  seccSlt != "Seccion" && mesSlt != "Mes") {
+            var trHTML = '';
+            $("#trTable").attr("hidden",false);
+            $("#searchTbl").val('');
+            $("#searchTbl").show().focus();
+            $.each(products, function (i, item) {
+              if (item.obra.search(obraSlt) != -1 && item.seccion.search(seccSlt) != -1 && item.mes.search(mesSlt) != -1) {
+                //console.log(item.fecha);
+                trHTML += '<tr><td>' + item.fecha + '</td><td>' + item.cedula + '</td><td>' + item.nombre + '</td><td>' + item.turno + '</td><td>' + item.inicio + '</td><td>' + item.fin + '</td><td>' + item.colacion + '</td><td>' + item.horas + '</td></tr>';            
+            $("#trTable").attr("hidden",true);
+              }
+            });
+            $('#tableTbd').append(trHTML);
+            $("#divProcess").attr("hidden",false);
+            $("#records_table").attr("hidden",false);
+          } else {
+            alert('Falta Ingresar Parámetros de Búsqueda');
+            return false; 
+          }
+        }
+      });
+    });
+  });
+</script>
+
+
+<%- include('footer') -%>
