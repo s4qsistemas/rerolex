@@ -1,4 +1,4 @@
-# Rerolex
+# Rerolex app
 
 Rerolex es una aplicación web construida con Express.js que utiliza sesiones y plantillas EJS para gestionar contenido dinámico. Este proyecto también utiliza `body-parser` para manejar solicitudes HTTP y `uuid` para generar identificadores únicos.
 
